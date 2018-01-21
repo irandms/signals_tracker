@@ -3,8 +3,6 @@ function startTime() {
     var h = today.getHours();
     var m = today.getMinutes();
     var s = today.getSeconds();
-    m = checkTime(m);
-    s = checkTime(s);
     if(h == 15 && m < 50) {
       var average = document.getElementById('total').innerHTML / (m + s/60);
       document.getElementById('average').innerHTML = average;
@@ -14,8 +12,4 @@ function startTime() {
       	document.getElementById('average').innerHTML = average;
     }
     var t = setTimeout(startTime, 500);
-}
-function checkTime(i) {
-    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-    return i;
 }

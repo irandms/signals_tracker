@@ -1,0 +1,12 @@
+<html>
+   <head>
+   <script type=text/javascript src="{{ url_for('static', filename='js/main.js') }}"></script>
+   </head>
+   <body onload="startTime()">
+      <p>Signals Today: <p id="total">{{ signals_count }}</p></p>
+      <p>Signals Per Minute: <p id="average"></p>
+      <form action = "counter" method = "post">
+         <p><input type = "submit" value = "si🅱️ners" /></p>
+      </form>
+   </body>
+</html>

@@ -1,9 +1,9 @@
 from flask import Flask, request, render_template
 from sqlalchemy import create_engine
-
 from datetime import datetime, date
 
 from stats_generator import generate_alltime_stats
+import config
 
 eng = create_engine('sqlite:///signals.db')
 app = Flask(__name__)
@@ -12,12 +12,12 @@ app = Flask(__name__)
 def root():
     conn = eng.connect()
     auth=''
-    if(request.method == 'POST' and request.form['password'] == 'big beefy taco with long don sauce'):
-	class_days = [0, 2, 4]
+    if(request.method == 'POST' and request.form['password'] == config.password):
+        class_days = [0, 2, 4]
         auth="ya"
-	if(datetime.now().hour == 15 and date.today().weekday() in class_days):
-	    conn.execute("create table if not exists datetime (d1 text);")
-	    conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
+        if(datetime.now().hour == 15 and date.today().weekday() in class_days):
+            conn.execute("create table if not exists datetime (d1 text);")
+            conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
 
     month_day_str = "'%" + date.today().strftime("%m-%d") + "%'"
     query = conn.execute("select d1 from datetime where d1 like ?", (month_day_str,))

@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from sqlalchemy import create_engine
 from datetime import datetime, date
 
@@ -52,6 +52,10 @@ def stats_upto_date(month, day):
     conn.close()
 
     return render_template("stats.html", **content)
+
+@app.route('/about')
+def about():
+    return redirect("https://github.com/irandms/signals_tracker")
 
 if __name__ == '__main__':
     app.run()

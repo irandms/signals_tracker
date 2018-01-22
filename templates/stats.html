@@ -1,5 +1,5 @@
-<html>
-<body>
+{% extends "layout.html" %}
+{% block content %}
 <p>Total Signals: {{ total_signals }}</p>
 <p>Average Signals per Day: {{ avg_per_day }}</p>
 <p>Average Signals per Minute: {{ avg_per_min }} </p>
@@ -10,7 +10,4 @@
 <p>Signals on {{ date }}: {{ signals_on_date }}</p>
 <p>Signals per Minute on {{ date }}: {{ signals_per_min_on_date }}</p>
 {% endif %}
-
-<a href="{{ url_for('root') }}">counter</a.
-</body>
-</html>
+{% endblock %}

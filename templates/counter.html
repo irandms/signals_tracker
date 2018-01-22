@@ -5,10 +5,13 @@
    <body onload="startTime()">
       <p>Signals Today: <p id="total">{{ signals_count }}</p></p>
       <p>Signals Per Minute: <p id="average"></p>
+
       <form action = "{{ url_for('root') }}" method = "post">
         <input type="password" id="password" name="password" />
         <input type="submit" id="submit" value="si🅱️ners" name="submit"/>
       </form>
       <p>{{ auth }}</p>
+
+      <a href="{{ url_for('stats') }}">stats</a>
    </body>
 </html>

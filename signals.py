@@ -2,7 +2,7 @@ from flask import Flask, request, render_template
 from sqlalchemy import create_engine
 from datetime import datetime, date
 
-from stats_generator import generate_alltime_stats
+from stats_generator import generate_alltime_stats, generate_date_stats
 import config
 
 eng = create_engine('sqlite:///signals.db')
@@ -26,14 +26,6 @@ def root():
     conn.close()
     return render_template("counter.html", signals_count=len(todays_data))
 
-@app.route('/increment', methods=['GET', 'POST'])
-def increment():
-    password = request.form['password']
-    if password == "test":
-        return redirect(url_for('index'))
-    else:
-        return redirect("https://google.com")
-
 @app.route('/stats')
 def stats():
     conn = eng.connect()
@@ -49,11 +41,13 @@ def stats():
 @app.route('/stats/<int:month>/<int:day>')
 def stats_upto_date(month, day):
     conn = eng.connect()
-    datetime = '2018-{}-{} 23:59:59'.format(str(month).zfill(2), str(day).zfill(2))
+    date = '2018-{}-{}'.format(str(month).zfill(2), str(day).zfill(2))
+    datetime = date + ' 23:59:59'
     query = conn.execute("select d1 from datetime where d1 < ?", (datetime,))
     data = query.cursor.fetchall()
 
     content = generate_alltime_stats(data)
+    content.update(generate_date_stats(data, date))
 
     conn.close()
 

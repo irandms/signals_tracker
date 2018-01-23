@@ -19,9 +19,9 @@ def root():
             conn.execute("create table if not exists datetime (d1 text);")
             conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
 
-    month_day_str = "'%" + date.today().strftime("%m-%d") + "%'"
-    query = conn.execute("select d1 from datetime where d1 like ?", (month_day_str,))
-    todays_data = query.cursor.fetchall()
+    month_day_str = '%' + date.today().strftime("%m-%d") + '%'
+    result = conn.execute("select d1 from datetime where d1 like ?;", (month_day_str,))
+    todays_data = result.cursor.fetchall()
 
     conn.close()
     return render_template("counter.html", signals_count=len(todays_data))

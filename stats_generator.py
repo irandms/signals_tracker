@@ -12,6 +12,7 @@ def generate_alltime_stats(data):
         if(pieces[0] != cur_day):
             if(cur_val > top_day_val):
                 top_day_val = cur_val
+                top_day_avg = top_day_val / 50.0
                 top_day = cur_day
             cur_val = 0
 
@@ -32,6 +33,7 @@ def generate_alltime_stats(data):
     results['avg_per_day'] = avg_per_day
     results['avg_per_min'] = len(data) / float(len(days)) / 50.0
     results['top_day_val'] = top_day_val
+    results['top_day_avg'] = top_day_avg
     results['top_day'] = top_day
     results['projected_signals'] = len(data) + days_remaining * avg_per_day
 

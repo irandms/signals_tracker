@@ -11,11 +11,10 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def root():
     conn = eng.connect()
-    auth=''
     if(request.method == 'POST' and request.form['password'] == config.password):
-        class_days = [0, 2, 4]
-        auth="ya"
-        if(datetime.now().hour == 15 and date.today().weekday() in class_days):
+        cur_hour = datetime.now().hour
+        cur_weekday = date.today().weekday()
+        if(cur_hour == config.class_hour and cur_weekday in config.class_days):
             conn.execute("create table if not exists datetime (d1 text);")
             conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
 

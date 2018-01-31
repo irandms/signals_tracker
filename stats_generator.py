@@ -1,3 +1,6 @@
+import matplotlib as mpl
+mpl.use('Agg')
+# There is no X server in production, so this allows us to use Matplotlib
 import matplotlib.pyplot as plt
 from datetime import datetime
 from sets import Set
@@ -56,7 +59,7 @@ def generate_elems_per_min_over_time_image(data):
 
     todays_data = list(filter(lambda x: x.day == right_now.day, data))
 
-    if right_now.minute < 50:
+    if right_now.hour == 15 and right_now.minute <= 50:
         upper_limit = right_now.minute
     else:
         upper_limit = 50

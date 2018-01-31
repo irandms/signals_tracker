@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect
 from sqlalchemy import create_engine
 from datetime import datetime, date
 
-from stats_generator import generate_alltime_stats, generate_date_stats
+from stats_generator import *
 import config
 
 eng = create_engine('sqlite:///signals.db')
@@ -21,6 +21,7 @@ def root():
     month_day_str = '%' + date.today().strftime("%m-%d") + '%'
     result = conn.execute("select d1 from datetime where d1 like ?;", (month_day_str,))
     todays_data = result.cursor.fetchall()
+    generate_elems_per_min_over_time_image(todays_data)
 
     conn.close()
     return render_template("counter.html", signals_count=len(todays_data))
@@ -31,6 +32,7 @@ def stats():
     query = conn.execute("select d1 from datetime;")
     data = query.cursor.fetchall()
 
+    print data
     content = generate_alltime_stats(data)
 
     conn.close()

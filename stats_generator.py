@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+from datetime import datetime
 from sets import Set
 
 def generate_alltime_stats(data):
@@ -47,3 +49,25 @@ def generate_date_stats(data, date):
     results['signals_per_min_on_date'] = len(data_on_date) / 50.0
 
     return results
+
+def generate_elems_per_min_over_time_image(data):
+    right_now = datetime.now()
+    datetimes = [ datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S') for x in data ]
+
+    todays_data = list(filter(lambda x: x.day == right_now.day, data))
+
+    if right_now.minute < 50:
+        upper_limit = right_now.minute
+    else:
+        upper_limit = 50
+
+    signals_per_min = []
+    for minute in range(1, upper_limit):
+        signals_this_far = list(filter(lambda x: x.minute <= minute, todays_data))
+        signals_per_min.append(len(signals_this_far) / float(minute))
+
+    plt.scatter(range(1, upper_limit), signals_per_min)
+    plt.title('Signals Per Minute Over Time')
+    plt.ylabel('Signals Per Minute')
+    plt.xlabel('Minutes Into Class')
+    plt.savefig('static/spm_over_time.png')

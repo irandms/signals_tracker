@@ -1,3 +1,5 @@
 *.db
 *.pyc
 config.py
+static/*.png
+venv

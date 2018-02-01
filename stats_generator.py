@@ -57,7 +57,7 @@ def generate_elems_per_min_over_time_image(data):
     right_now = datetime.now()
     datetimes = [ datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S') for x in data ]
 
-    todays_data = list(filter(lambda x: x.day == right_now.day, data))
+    todays_data = list(filter(lambda x: x.day == right_now.day, datetimes))
 
     if right_now.hour == 15 and right_now.minute <= 50:
         upper_limit = right_now.minute

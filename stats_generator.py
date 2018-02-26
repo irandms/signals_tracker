@@ -74,6 +74,7 @@ def generate_elems_per_min_over_time_image(data):
     plt.ylabel('Signals Per Minute')
     plt.xlabel('Minutes Into Class')
     plt.savefig('static/spm_over_time.png')
+    plt.clf()
 
 def generate_elems_per_min_over_time_secs_image(data):
     right_now = datetime.now()
@@ -92,8 +93,9 @@ def generate_elems_per_min_over_time_secs_image(data):
         signals_this_far = list(filter(lambda x: (x.minute * 60 + x.second) <= seconds, todays_data))
         signals_per_min.append(len(signals_this_far) / float(seconds/60.0))
 
-    plt.scatter(range(60, upper_limit), signals_per_min)
+    plt.scatter(map(lambda x: x/60.0, range(60, upper_limit)), signals_per_min)
     plt.title('Signals Per Minute Over Time')
     plt.ylabel('Signals Per Minute')
     plt.xlabel('Minutes Into Class')
     plt.savefig('static/spm_over_time_secs.png')
+    plt.clf()

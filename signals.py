@@ -24,6 +24,7 @@ def root():
     result = conn.execute("select d1 from datetime where d1 like ?;", (month_day_str,))
     todays_data = result.cursor.fetchall()
     generate_elems_per_min_over_time_image(todays_data)
+    generate_elems_per_min_over_time_secs_image(todays_data)
 
     unixtime = datetime.now().strftime('%s')
 

@@ -89,11 +89,11 @@ def generate_elems_per_min_over_time_secs_image(data):
 
     signals_per_min = []
 
-    for seconds in range(60, upper_limit):
+    for seconds in range(1, upper_limit):
         signals_this_far = list(filter(lambda x: (x.minute * 60 + x.second) <= seconds, todays_data))
         signals_per_min.append(len(signals_this_far) / float(seconds/60.0))
 
-    plt.scatter(map(lambda x: x/60.0, range(60, upper_limit)), signals_per_min)
+    plt.scatter(map(lambda x: x/60.0, range(1, upper_limit)), signals_per_min)
     plt.title('Signals Per Minute Over Time')
     plt.ylabel('Signals Per Minute')
     plt.xlabel('Minutes Into Class')

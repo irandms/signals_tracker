@@ -92,7 +92,7 @@ def generate_images(data):
     cur_day = datetime.today()
     year = cur_day.year
 
-    i = 0
+    i = 1
     while year == cur_day.year:
         if cur_day.date().weekday() in [0, 2, 4]:
             class_days.append(cur_day)

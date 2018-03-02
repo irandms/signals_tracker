@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body onload="startTime()">
-        <p><a href="{{ url_for('root') }}">counter</a> <a href="{{ url_for('stats') }}">stats</a></p>
+        <p>
+            <a href="{{ url_for('root') }}">counter</a>
+            <a href="{{ url_for('stats') }}">stats</a>
+            <a href="{{ url_for('gallery') }}">gallery</a>
+        </p>
         {% block content %}
         {% endblock %}
     </body>

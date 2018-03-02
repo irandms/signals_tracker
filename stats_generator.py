@@ -2,7 +2,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 # There is no X server in production, so this allows us to use Matplotlib
 import matplotlib.pyplot as plt
-from datetime import datetime
+import os.path
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 def generate_alltime_stats(data):
@@ -53,11 +54,16 @@ def generate_date_stats(data, date):
 
     return results
 
-def generate_elems_per_min_over_time_img(data, date, resolution):
+def generate_elems_per_min_over_time_img(data, right_now, resolution, path, recreate):
+    month_day = right_now.date().strftime("%m-%d")
+    filename = '{}spm_over_time_{}_reso{}.png'.format(path, month_day, resolution)
+
+    if os.path.isfile(filename) and not recreate:
+        return filename
+
     datetimes = [ datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S') for x in data ]
 
-    right_now = datetime.now()
-    todays_data = list(filter(lambda x: x.day == right_now.day, datetimes))
+    todays_data = list(filter(lambda x: x.day == right_now.day and x.month == right_now.month, datetimes))
 
     if right_now.hour == 15 and right_now.minute <= 50:
         upper_limit = right_now.minute * 60 + right_now.second
@@ -65,14 +71,12 @@ def generate_elems_per_min_over_time_img(data, date, resolution):
         upper_limit = 3000
 
     seconds_to_check = range(resolution, upper_limit+1, resolution);
-    print(seconds_to_check)
 
     signals_per_min = []
     for seconds in seconds_to_check:
         signals_this_far = list(filter(lambda x: (x.minute * 60 + x.second) <= seconds, todays_data))
         signals_per_min.append(len(signals_this_far) / float(seconds/60.0))
 
-    filename = 'static/spm_over_time_reso{}.png'.format(resolution)
     plt.scatter(map(lambda x: x/60.0, seconds_to_check), signals_per_min)
     plt.title('Signals Per Minute Over Time ({} second resolution)'.format(resolution))
     plt.ylabel('Signals Per Minute')
@@ -81,3 +85,23 @@ def generate_elems_per_min_over_time_img(data, date, resolution):
     plt.clf()
 
     return filename
+
+def generate_images(data):
+    class_days = []
+
+    cur_day = datetime.today()
+    year = cur_day.year
+
+    i = 0
+    while year == cur_day.year:
+        if cur_day.date().weekday() in [0, 2, 4]:
+            class_days.append(cur_day)
+        cur_day = datetime.today() - timedelta(i)
+        i += 1
+
+    filenames = []
+    # Create images for main page
+    for day in class_days:
+        filenames.append(generate_elems_per_min_over_time_img(data, day, 60, 'static/gallery/', False))
+
+    return filenames

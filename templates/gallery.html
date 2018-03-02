@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% for img in images %}
+        <p> {{ img }} </p>
+        <img src="{{ img }}" width="500">
+    {% endfor %}
+{% endblock %}

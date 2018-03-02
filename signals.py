@@ -31,8 +31,8 @@ def root():
     conn.close()
 
     # Create images for main page
-    img1 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 60)
-    img2 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 15)
+    img1 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 60, 'static/', True)
+    img2 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 15, 'static/', True)
 
     # Use unix timestamp to force browsers to make unique requests on images
     # this is kinda hacky
@@ -66,17 +66,29 @@ def stats_upto_date(month, day):
     datetime = date + ' 23:59:59'
     query = conn.execute("select d1 from datetime where d1 < ?", (datetime,))
     data = query.cursor.fetchall()
+    conn.close()
 
     content = generate_alltime_stats(data)
     content.update(generate_date_stats(data, date))
-
-    conn.close()
 
     return render_template("stats.html", **content)
 
 @app.route('/about')
 def about():
     return redirect("https://github.com/irandms/signals_tracker")
+
+@app.route('/gallery')
+def gallery():
+    content = dict()
+
+    conn = eng.connect()
+    query = conn.execute("select d1 from datetime")
+    data = query.cursor.fetchall()
+    conn.close()
+
+    content['images'] = generate_images(data)
+
+    return render_template("gallery.html", **content)
 
 if __name__ == '__main__':
     app.run()

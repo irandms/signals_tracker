@@ -3,44 +3,44 @@ mpl.use('Agg')
 # There is no X server in production, so this allows us to use Matplotlib
 import matplotlib.pyplot as plt
 from datetime import datetime
-from sets import Set
+from collections import defaultdict
 
 def generate_alltime_stats(data):
-    top_day_val = -1;
-    days = Set()
-    cur_val = 0;
-    cur_day = u''
+    days = defaultdict(int)
+
+    # Defaults - data[0][0].split()[0] is an ugly hardcoded way
+    # to get the date of the very first datapoint in data
+    top_day_count = -1;
+    cur_day = data[0][0].split()[0]
+
     for datetime in data:
-        timestamp = datetime[0]
-        pieces = tuple(timestamp.split())
+        # Example datetime: (u'2018-02-28 15:14:23',)
+        # Here we take the first member of this 1-tuple, then split
+        # by whitespace. Finally, take the 1st member of that, the date
+        date = datetime[0].split()[0]
+        days[date] += 1
 
-        if(pieces[0] != cur_day):
-            if(cur_val > top_day_val):
-                top_day_val = cur_val
-                top_day_avg = top_day_val / 50.0
-                top_day = cur_day
-            cur_val = 0
+    for day, count in days.iteritems():
+        if(count > top_day_count):
+            top_day_count = count
+            top_day_avg = top_day_count / 50.0
+            top_day = day
 
-        cur_day = pieces[0]
-        cur_time = pieces[1]
-
-        year, month, day = cur_day.split('-')
-        hour, minute, second = cur_time.split(':')
-
-        days.add(day)
-        cur_val += 1
-
-    days_remaining = 29 - len(days)
+    # Hardcoded at the time of writing - there are 30 days of lecture
+    days_remaining = 30 - len(days)
     total_signals = len(data)
-    avg_per_day = len(data) / float(len(days))
+    avg_per_day = total_signals / float(len(days))
 
-    results = { 'total_signals' : total_signals }
-    results['avg_per_day'] = avg_per_day
-    results['avg_per_min'] = len(data) / float(len(days)) / 50.0
-    results['top_day_val'] = top_day_val
-    results['top_day_avg'] = top_day_avg
-    results['top_day'] = top_day
-    results['projected_signals'] = len(data) + days_remaining * avg_per_day
+    # Results dictionary, for the jinja2 template
+    results = {
+        'total_signals' : total_signals,
+        'avg_per_day' : avg_per_day,
+        'avg_per_min' : avg_per_day / 50.0,
+        'top_day_count' : top_day_count,
+        'top_day_avg' : top_day_avg,
+        'top_day' : top_day,
+        'projected_signals' : len(data) + days_remaining * avg_per_day
+    }
 
     return results
 
@@ -53,49 +53,31 @@ def generate_date_stats(data, date):
 
     return results
 
-def generate_elems_per_min_over_time_image(data):
-    right_now = datetime.now()
+def generate_elems_per_min_over_time_img(data, date, resolution):
     datetimes = [ datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S') for x in data ]
 
-    todays_data = list(filter(lambda x: x.day == right_now.day, datetimes))
-
-    if right_now.hour == 15 and right_now.minute <= 50:
-        upper_limit = right_now.minute
-    else:
-        upper_limit = 50
-
-    signals_per_min = []
-    for minute in range(1, upper_limit):
-        signals_this_far = list(filter(lambda x: x.minute <= minute, todays_data))
-        signals_per_min.append(len(signals_this_far) / float(minute))
-
-    plt.scatter(range(1, upper_limit), signals_per_min)
-    plt.title('Signals Per Minute Over Time')
-    plt.ylabel('Signals Per Minute')
-    plt.xlabel('Minutes Into Class')
-    plt.savefig('static/spm_over_time.png')
-    plt.clf()
-
-def generate_elems_per_min_over_time_secs_image(data):
     right_now = datetime.now()
-    datetimes = [ datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S') for x in data ]
-
     todays_data = list(filter(lambda x: x.day == right_now.day, datetimes))
 
     if right_now.hour == 15 and right_now.minute <= 50:
         upper_limit = right_now.minute * 60 + right_now.second
     else:
-        upper_limit = 50
+        upper_limit = 3000
+
+    seconds_to_check = range(resolution, upper_limit+1, resolution);
+    print(seconds_to_check)
 
     signals_per_min = []
-
-    for seconds in range(1, upper_limit):
+    for seconds in seconds_to_check:
         signals_this_far = list(filter(lambda x: (x.minute * 60 + x.second) <= seconds, todays_data))
         signals_per_min.append(len(signals_this_far) / float(seconds/60.0))
 
-    plt.scatter(map(lambda x: x/60.0, range(1, upper_limit)), signals_per_min)
-    plt.title('Signals Per Minute Over Time')
+    filename = 'static/spm_over_time_reso{}.png'.format(resolution)
+    plt.scatter(map(lambda x: x/60.0, seconds_to_check), signals_per_min)
+    plt.title('Signals Per Minute Over Time ({} second resolution)'.format(resolution))
     plt.ylabel('Signals Per Minute')
     plt.xlabel('Minutes Into Class')
-    plt.savefig('static/spm_over_time_secs.png')
+    plt.savefig(filename)
     plt.clf()
+
+    return filename

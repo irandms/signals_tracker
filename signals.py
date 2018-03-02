@@ -12,24 +12,40 @@ app = Flask(__name__)
 def root():
     conn = eng.connect()
     auth = ''
+
+    cur_datetime = datetime.now()
+    # Validate the user trying to change the db
     if(request.method == 'POST' and request.form['password'] == config.password):
-        cur_hour = datetime.now().hour
-        cur_weekday = date.today().weekday()
+        cur_hour = cur_datetime.hour
+        cur_weekday = cur_datetime.date().weekday()
         auth = 'authenticated'
+        # Validate that right now is a time when the db may be altered
         if(cur_hour == config.class_hour and cur_weekday in config.class_days):
             conn.execute("create table if not exists datetime (d1 text);")
             conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
 
-    month_day_str = '%' + date.today().strftime("%m-%d") + '%'
+    # Gather data from the database from today
+    month_day_str = '%' + cur_datetime.date().strftime("%m-%d") + '%'
     result = conn.execute("select d1 from datetime where d1 like ?;", (month_day_str,))
     todays_data = result.cursor.fetchall()
-    generate_elems_per_min_over_time_image(todays_data)
-    generate_elems_per_min_over_time_secs_image(todays_data)
-
-    unixtime = datetime.now().strftime('%s')
-
     conn.close()
-    return render_template("counter.html", signals_count=len(todays_data), auth=auth, time=unixtime)
+
+    # Create images for main page
+    img1 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 60)
+    img2 = generate_elems_per_min_over_time_img(todays_data, cur_datetime, 15)
+
+    # Use unix timestamp to force browsers to make unique requests on images
+    # this is kinda hacky
+    unixtime = datetime.now().strftime('%s')
+    content = {
+        'auth': auth,
+        'signals_count': len(todays_data),
+        'img1': img1,
+        'img2': img2,
+        'time': unixtime
+    }
+
+    return render_template("counter.html", **content)
 
 @app.route('/stats')
 def stats():

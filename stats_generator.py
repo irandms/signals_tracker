@@ -28,7 +28,7 @@ def generate_alltime_stats(data):
             top_day = day
 
     # Hardcoded at the time of writing - there are 30 days of lecture
-    days_remaining = 30 - len(days)
+    days_remaining = 28 - len(days)
     total_signals = len(data)
     avg_per_day = total_signals / float(len(days))
 

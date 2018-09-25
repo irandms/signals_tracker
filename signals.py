@@ -20,7 +20,7 @@ def root():
         cur_weekday = cur_datetime.date().weekday()
         auth = 'authenticated'
         # Validate that right now is a time when the db may be altered
-        if(cur_hour == config.class_hour and cur_weekday in config.class_days):
+        if(cur_hour in config.class_hours and cur_weekday in config.class_days):
             conn.execute("create table if not exists datetime (d1 text);")
             conn.execute("insert into datetime (d1) values (datetime('now', 'localtime'));")
 
